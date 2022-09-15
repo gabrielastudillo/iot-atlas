@@ -171,14 +171,6 @@ The processing flow for path **1a** is covered in the implementation below. Flow
 
 This implementation assumes that you are comfortable using the AWS Command Line Interface (CLI). If you've not installed the AWS CLI, follow the  [installation of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) instructions. The implementation also assumes you  using the default AWS CLI profile or you've set the corresponding session based shell variables [AWS_PROFILE](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) and [AWS_DEFAULT_REGION](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html). Otherwise, if you are using a named profile be sure to either the `---profile <profile-name> and --region <aws-region>` arguments to your CLI commands.
 
-## IoT Analytics Channel
-
-First establish a Channel for Analytics Data. The Channel data can be stored in an AWS or customer managed S3 bucket; in this case we'll default to AWS managed. The storage retention can be indefinite or based on time in years and days; in this case we'll default to indefinite. 
-
-```yaml
-aws iotanalytics create-channel --channel-name etl_archive_telemetry_YOURNAME
-```
-
 ## Iot Core Topic Rule
 
 An IoT Core Topic Rule will batch put messages into a channel as they are published to the MQTT Broker. You'll need to create an IAM role with a trust relationship for iot.amazon.com and permission to BatchPutMessage(s) to IoT Analytics and for convenience we'll also use this policy to allow IoT Analytics and IoT Core to write logs to CloudWatch. 
@@ -241,6 +233,14 @@ To enable logging for IoT Analytics and IoT core execute the following commands 
 ```yaml
 aws iotanalytics put-logging-options --logging-options roleArn=arn:aws:iam::<ACCOUNT-ID>:role/EtlAnalyticsRole,level=ERROR,enabled=true
 aws iot set-v2-logging-options --role-arn arn:aws:iam::<ACCOUNT-ID>:role/EtlAnalyticsRole --default-log-level DEBUG
+```
+
+## IoT Analytics Channel
+
+First establish a Channel for Analytics Data. The Channel data can be stored in an AWS or customer managed S3 bucket; in this case we'll default to AWS managed. The storage retention can be indefinite or based on time in years and days; in this case we'll default to indefinite. 
+
+```yaml
+aws iotanalytics create-channel --channel-name etl_archive_telemetry_YOURNAME
 ```
 
 Now you can create the topic rule.  
