@@ -176,7 +176,7 @@ This implementation assumes that you are comfortable using the AWS Command Line 
 First establish a Channel for Analytics Data. The Channel data can be stored in an AWS or customer managed S3 bucket; in this case we'll default to AWS managed. The storage retention can be indefinite or based on time in years and days; in this case we'll default to indefinite. 
 
 ```yaml
-aws iotanalytics create-channel --channel-name etl_archive_telemetry
+aws iotanalytics create-channel --channel-name etl_archive_telemetry_YOURNAME
 ```
 
 ## Iot Core Topic Rule
@@ -219,7 +219,7 @@ Save the below JSON to a file named policy_etl_analytics.json. Be sure to replac
             "Effect": "Allow",
             "Action": "iotanalytics:BatchPutMessage",
             "Resource": [
-               "arn:aws:iotanalytics:<REGION>:<ACCOUNT-ID>:channel/etl_archive_telemetry"
+               "arn:aws:iotanalytics:<REGION>:<ACCOUNT-ID>:channel/*"
             ]
         },
         {
@@ -250,13 +250,13 @@ aws iot create-topic-rule --rule-name etl_archival --topic-rule-payload file://t
 Save the JSON below to a file named topic_rule.json. Be sure to `<ACCOUNT-ID>` with your account id before executing the command above. 
 ```json
 {
-    "sql": "SELECT * FROM 'dt/plant1/+/aggregate'",
+    "sql": "SELECT * FROM 'dt/YOURNAME/+/aggregate'",
     "ruleDisabled": false,
     "awsIotSqlVersion": "2016-03-23",
     "actions": [
         {
             "iotAnalytics": {
-                "channelName": "etl_archive_telemetry",
+                "channelName": "etl_archive_telemetry_YOURNAME",
                 "roleArn": "arn:aws:iam::<ACCOUNT-ID>:role/EtlAnalyticsRole"
             }
         }
@@ -280,7 +280,7 @@ aws iotanalytics create-datastore --cli-input-json file://datastore.json
 Save the JSON below to a file name datastore.json before executing the command above.
 ```JSON
 {
-    "datastoreName": "etl_archival_store",
+    "datastoreName": "etl_archival_store_YOURNAME",
     "datastoreStorage": {
         "serviceManagedS3": {}
     },
@@ -338,7 +338,7 @@ aws iotanalytics create-pipeline --cli-input-json file://pipeline.json
 Save the JSON below to a file named pipeline.json before executing the command above.
 ```JSON
 {
-    "pipelineName": "calculate_fahrenheit",
+    "pipelineName": "calculate_fahrenheit_YOURNAME",
     "pipelineActivities": [
         {
             "channel": {
@@ -358,7 +358,7 @@ Save the JSON below to a file named pipeline.json before executing the command a
         {
             "datastore": {
                 "name": "write_datastore",
-                "datastoreName": "etl_archival_store"
+                "datastoreName": "etl_archival_store_YOURNAME"
             }
         }
     ]
@@ -402,7 +402,7 @@ def read(sensor):
     message["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(message)
 
-    topic = f"dt/plant1/{message['device_id']}/aggregate"
+    topic = f"dt/YOURNAME/{message['device_id']}/aggregate"
     iot_client.publish(topic=topic, payload=json.dumps(message))
 
 
@@ -432,12 +432,12 @@ Copy the JSON below to a file name dataset_raw.json before executing the command
 
 ```JSON
 {
-    "datasetName": "raw_data",
+    "datasetName": "raw_data_YOURNAME",
     "actions": [
         {
             "actionName": "onetime_action",
             "queryAction": {
-                "sqlQuery": "select * from etl_archival_store"
+                "sqlQuery": "select * from etl_archival_store_YOURNAME"
             }
         }
     ]
@@ -458,7 +458,7 @@ Copy the JSON below to a file name dataset_group_by.json before executing the co
         {
             "actionName": "onetime_action",
             "queryAction": {
-                "sqlQuery": "SELECT device_id, avg(temperature) AVG_TEMP, max(temperature) MAX_TEMP, min(temperature) MIN_TEMP, avg(humidity) AVG_HUMIDTY FROM etl_archival_store group by (device_id) order by device_id"
+                "sqlQuery": "SELECT device_id, avg(temperature) AVG_TEMP, max(temperature) MAX_TEMP, min(temperature) MIN_TEMP, avg(humidity) AVG_HUMIDTY FROM etl_archival_store_YOURNAME group by (device_id) order by device_id"
             }
         }
     ]
@@ -470,7 +470,7 @@ Copy the JSON below to a file name dataset_group_by.json before executing the co
 Your datasets have been created, but they are empty. To populate them we need to run them. We didn't set a schedule so we will run them manually now. Execute the command below, or choose to run your dataset from the console.
 
 ```yaml
-aws iotanalytics create-dataset-content --dataset-name raw_data
+aws iotanalytics create-dataset-content --dataset-name raw_data_YOURNAME
 ```
 
 Navigate to QuickSight from the AWS Console. Choose "Sign up for QuickSight" if you haven't already. Standard edition is adequate for this exercise. Choose Enterprise if you wish to use advanced features or Enterprise Q if you want advanced features and AI/ML Insights.
@@ -502,7 +502,7 @@ aws iotanalytics update-pipeline --cli-input-json file://pipeline.json
 Save the JSON below to your existing file named pipeline.json before executing the command above.
 ```JSON
 {
-    "pipelineName": "calculate_fahrenheit",
+    "pipelineName": "calculate_fahrenheit_YOURNAME",
     "pipelineActivities": [
         {
             "channel": {
@@ -530,7 +530,7 @@ Save the JSON below to your existing file named pipeline.json before executing t
         {
             "datastore": {
                 "name": "write_datastore",
-                "datastoreName": "etl_archival_store"
+                "datastoreName": "etl_archival_store_YOURNAME"
             }
         }
     ]
@@ -540,13 +540,13 @@ Save the JSON below to your existing file named pipeline.json before executing t
 Now that we've updated our pipeline, we'll need to reprocess it so that the corrected humidity values are available for analysis. After reprocessing is complete we'll need to update our Datasets as well. You can both view the updated rule and the reprocessing status in the AWS Console.
 
 ```yaml
-aws iotanalytics start-pipeline-reprocessing --pipeline-name calculate_fahrenheit
+aws iotanalytics start-pipeline-reprocessing --pipeline-name calculate_fahrenheit_YOURNAME
 ```
 
 After a moment you can create your updated Dataset content. 
 
 ```yaml
-aws iotanalytics create-dataset-content --dataset-name raw_data
+aws iotanalytics create-dataset-content --dataset-name raw_data_YOURNAME
 ```
 
 If you'd like to refresh SPICE in QuickSight navigate to QuickSight, choose Datasets, select raw_data and choose refresh now.  
