@@ -377,7 +377,7 @@ Ensure you have python 3 installed on your machine. Then execute the command bel
 python3 data_generator.py
 ```
 
-Before running the command above, save the python code below to a file named data_generator.py
+Before running the command above, save the python code below to a file named data_generator.py also be sure that you are running the console as administrator
 ```python
 #!/usr/bin/env python3
 
@@ -387,6 +387,7 @@ import boto3
 import json
 from multiprocessing import Pool
 from datetime import datetime
+# If you got an error you may need to install boto by running this command on the console pip3 install boto3
 
 
 iot_client = boto3.client(
