@@ -508,7 +508,7 @@ Save the JSON below to your existing file named pipeline.json before executing t
         {
             "channel": {
                 "name": "read_channel",
-                "channelName": "etl_archive_telemetry",
+                "channelName": "etl_archive_telemetry_YOURNAME",
                 "next": "calculate_fahrenheit"
             }
         },
