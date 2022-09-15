@@ -171,7 +171,7 @@ The processing flow for path **1a** is covered in the implementation below. Flow
 
 This implementation assumes that you are comfortable using the AWS Command Line Interface (CLI). If you've not installed the AWS CLI, follow the  [installation of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) instructions. The implementation also assumes you  using the default AWS CLI profile or you've set the corresponding session based shell variables [AWS_PROFILE](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) and [AWS_DEFAULT_REGION](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html). Otherwise, if you are using a named profile be sure to either the `---profile <profile-name> and --region <aws-region>` arguments to your CLI commands.
 
-## Iot Core Topic Rule
+## IAM role and polocy
 
 An IoT Core Topic Rule will batch put messages into a channel as they are published to the MQTT Broker. You'll need to create an IAM role with a trust relationship for iot.amazon.com and permission to BatchPutMessage(s) to IoT Analytics and for convenience we'll also use this policy to allow IoT Analytics and IoT Core to write logs to CloudWatch. 
 
@@ -242,7 +242,7 @@ First establish a Channel for Analytics Data. The Channel data can be stored in 
 ```yaml
 aws iotanalytics create-channel --channel-name etl_archive_telemetry_YOURNAME
 ```
-
+## Iot Core Topic Rule
 Now you can create the topic rule.  
 ```yaml
 aws iot create-topic-rule --rule-name etl_archival_YOURNAME --topic-rule-payload file://topic_rule.json
