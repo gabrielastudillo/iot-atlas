@@ -245,7 +245,7 @@ aws iotanalytics create-channel --channel-name etl_archive_telemetry_YOURNAME
 
 Now you can create the topic rule.  
 ```yaml
-aws iot create-topic-rule --rule-name etl_archival --topic-rule-payload file://topic_rule.json
+aws iot create-topic-rule --rule-name etl_archival_YOURNAME --topic-rule-payload file://topic_rule.json
 ```
 Save the JSON below to a file named topic_rule.json. Be sure to `<ACCOUNT-ID>` with your account id before executing the command above. 
 ```json
