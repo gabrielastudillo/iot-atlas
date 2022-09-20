@@ -569,14 +569,11 @@ The datasets we created were based on SQL. More complex Analyses can be created 
 The below CLI commands will clean up the IoT Core, IoT Analytics and IAM resources you created in this guide, in the correct order. Execute these to ensure you don't accrue AWS billing costs. Once the below commands are completed, you will also need to navigate to the CloudWatch console or use the CLI to set a retention period on the logs or delete them per your needs.
 
 ```yaml
-aws iotanalytics put-logging-options --logging-options roleArn=arn:aws:iam::<ACCOUNT-ID>:role/EtlAnalyticsRole,level=ERROR,enabled=false
-aws iot set-v2-logging-options --role-arn arn:aws:iam::<ACCOUNT-ID>:role/EtlAnalyticsRole --default-log-level DISABLED
-aws iot delete-topic-rule --rule-name etl_archival
-aws iam delete-role-policy --role-name EtlAnalyticsRole --policy-name EtlAnalyticsPolicy
-aws iam delete-role --role-name EtlAnalyticsRole
-aws iotanalytics delete-pipeline --pipeline-name calculate_fahrenheit
-aws iotanalytics delete-channel --channel-name etl_archive_telemetry
-aws iotanalytics delete-datastore --datastore-name etl_archival_store
-aws iotanalytics delete-dataset --dataset-name raw_data
-aws iotanalytics delete-dataset --dataset-name group_by_data
+
+aws iot delete-topic-rule --rule-name etl_archival_YOURNAME
+aws iotanalytics delete-pipeline --pipeline-name calculate_fahrenheit_YOURNAME
+aws iotanalytics delete-channel --channel-name etl_archive_telemetry_YOURNAME
+aws iotanalytics delete-datastore --datastore-name etl_archival_store_YOURNAME
+aws iotanalytics delete-dataset --dataset-name raw_data_YOURNAME
+aws iotanalytics delete-dataset --dataset-name group_by_data_YOURNAME
 ```
