@@ -51,55 +51,6 @@ Extract, Transform and Load (ETL) of IoT telemetry data is the process that tran
 1. _Jupyter_ notebooks .
 1. _S3 DataLake_ stores Channel, Datastore and optionally Dataset data.
 
-```plantuml
-@startuml
-!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v7.0/dist
-!includeurl AWSPuml/AWSCommon.puml
-!includeurl AWSPuml/InternetOfThings/all.puml
-!includeurl AWSPuml/Analytics/QuickSight.puml
-!includeurl AWSPuml/Storage/SimpleStorageServiceS3.puml
-
-'Comment out to use default PlantUML sequence formatting
-skinparam participant {
-    BackgroundColor AWS_BG_COLOR
-    BorderColor AWS_BORDER_COLOR
-}
-'Hide the bottom boxes
-hide footbox
-
-participant "<$IoTGeneric>\nDevices" as devices
-participant "<$IoTCore>\nMQTT Broker" as broker
-participant "<$IoTRule>\nRule" as rule
-participant "<$IoTAnalyticsChannel>\nChannel" as channel
-participant "<$IoTAnalyticsPipeline>\nPipeline" as pipeline
-participant "<$IoTAnalyticsDataStore>\nDataStore" as datastore
-participant "<$QuickSight>\nQuickSight" as quicksight
-participant "<$SimpleStorageServiceS3>\nS3 Bucket" as bucket
-
-== Publish, Archive, Transform, and Store ==
-devices -> broker : connect(iot_endpoint)
-devices -> broker : publish("d1/topic")
-devices -> broker : publish("d2/topic")
-devices -> broker : publish("d3/topic")
-broker <- rule : select * from \n'+/topic'
-rule -> channel : batchPutMessage(\n\tmessages)'
-
-channel <- pipeline : p1.read(raw_data)
-pipeline -> datastore: p1.put(xformed_data)
-channel <- pipeline : p2.read(raw_data)
-pipeline -> datastore: p2.put(xformed_data)
-channel <- pipeline : p3.read(raw_data)
-pipeline -> datastore: p3.put(xformed_data)
-datastore <- quicksight: read
-channel -> bucket: put(raw_data)
-pipeline -> bucket: put(xformed_data)
-
-@enduml
-```
-
-{{% /tab %}}
-{{% tab name="1b. SCADA Historian"  %}}
-
 1. _AWS Database Migration Service (DMS)_ reads data from a historian database and puts it onto an _Amazon Kinesis Data Stream_. A _Lambda_ function then reads data from Kinesis using the SDK and uses IoT Analytics Channel batchPutMessage to put data onto the _IoT Analytics Channel_. This pattern demonstrates how AWS IoT Analytics makes the same ETL and analysis flows available for near real time and batch. 
 1. A Topic Rules publishes the results of a wildcard SQL `dt/plant1/+/aggregate` from the MQTT Broker then puts messages onto the _IoT Channel_ which stores that data in an S3 bucket for a set period of time.
 1. The _IoT Analytics Pipeline_ executes a workflow of activities including reading from the Channel, performing filtering and transformations, and writing to the Datastore.
