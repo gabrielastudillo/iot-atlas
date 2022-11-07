@@ -39,9 +39,6 @@ Extract, Transform and Load (ETL) of IoT telemetry data is the process that tran
 
 ![ETL via IoT Analytics](architecture.svg)
 
-{{< tabs groupId="analytics" align="center" >}}
-{{% tab name="1a. MQTT Real Time" %}}
-
 1. _Devices_ establish an MQTT connection to the _AWS IoT Core_ endpoint, and then publish message to the `dt/plant1/device/aggregate` (data telemetry) topic. This is a location and device specific topic to deliver telemetry messages for a given device or sensor.
 1. A Topic Rules publishes the results of a wildcard SQL `dt/plant1/+/aggregate` from the MQTT Broker then puts messages onto the _IoT Channel_ which stores that data in an S3 bucket for a set period of time.
 1. The _IoT Analytics Pipeline_ executes a workflow of activities including reading from the Channel, performing filtering and transformations, and writing to the Datastore.
@@ -59,54 +56,6 @@ Extract, Transform and Load (ETL) of IoT telemetry data is the process that tran
 1. _Amazon QuickSight_ reads from a Dataset and displays visualizations and dashboards.
 1. _Jupyter_ notebooks .
 1. _Amazon S3 DataLake_ stores Channel, Datastore and optionally Dataset data.
-
-```plantuml
-@startuml
-!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v7.0/dist
-!includeurl AWSPuml/AWSCommon.puml
-!includeurl AWSPuml/InternetOfThings/all.puml
-!includeurl AWSPuml/Analytics/Kinesis.puml
-!includeurl AWSPuml/Database/all.puml
-!includeurl AWSPuml/Analytics/QuickSight.puml
-!includeurl AWSPuml/Storage/SimpleStorageServiceS3.puml
-!includeurl AWSPuml/Compute/Lambda.puml
-
-'Comment out to use default PlantUML sequence formatting
-skinparam participant {
-    BackgroundColor AWS_BG_COLOR
-    BorderColor AWS_BORDER_COLOR
-}
-'Hide the bottom boxes
-hide footbox
-
-participant "<$Database>\nSCADA" as historian
-participant "<$DatabaseMigrationService>\nDMS" as dms
-participant "<$Kinesis>\nKinesis" as stream
-participant "<$Lambda>\nLambda" as lambda
-participant "<$IoTAnalyticsChannel>\nChannel" as channel
-participant "<$IoTAnalyticsPipeline>\nPipeline" as pipeline
-participant "<$IoTAnalyticsDataStore>\nDataStore" as datastore
-participant "<$QuickSight>\nQuickSight" as quicksight
-participant "<$SimpleStorageServiceS3>\nS3 Bucket" as bucket
-
-== Batch, Archive, Transform, and Store ==
-historian <- dms : read(data)
-dms -> stream : put(data)
-stream <- lambda : read(data)
-lambda -> channel : batchPutMessage(\n\tmessages)'
-
-channel <- pipeline : p1.read(raw_data)
-pipeline -> datastore: p1.put(xformed_data)
-datastore <- quicksight: read
-channel -> bucket: put(raw_data)
-pipeline -> bucket: put(xformed_data)
-
-@enduml
-```
-
-{{% /tab %}}
-{{< /tabs >}}
-
 
 ## Implementation
 
